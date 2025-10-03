@@ -11,7 +11,7 @@ live_design! {
         spacing: 0.
         keep_invisible: false
 
-        v = <View> {
+        moment = <View> {
             tag = <Label> {
                 // It is a holder
                 text = ""
@@ -93,28 +93,22 @@ impl Widget for MomentsList {
     }
     fn draw_walk(&mut self, cx: &mut Cx2d, scope: &mut Scope, walk: Walk) -> DrawStep {
         let range = self.moments.len();
+        let mut moments_iter = self.moments.iter();
         self.list.set_item_range(cx, 0, range);
 
         while let Some(item_id) = self.list.next_visible_item(cx) {
-            let item = if let Some(t) = picture_dirs.pop() {
-                let picture_dir = list.item(cx, item_id, live_id!(picture_dir));
-                picture_dir
-                    .as_label()
-                    .set_text_and_redraw(cx, t.to_str().unwrap());
-                picture_dir
-            } else if item_id == range {
-                list.item(cx, item_id, live_id!(empty))
-            } else if item_id == range + 1 {
-                let count_notice = list.item(cx, item_id, live_id!(count_notice));
-                count_notice
-                    .as_label()
-                    .set_text_and_redraw(cx, &format!("{} total pictures", range));
-                count_notice
+            let item = if let Some(moment) = moments_iter.next() {
+                let Moment { tag, content } = moment;
+                let moment = self.list.item(cx, item_id, live_id!(moment)).as_view();
+                moment.label(id!(tag)).set_text(cx, tag);
+                moment.label(id!(content)).set_text(cx, content);
+                moment
             } else {
                 continue;
             };
             item.draw_all(cx, scope)
         }
         DrawStep::done()
+        // self.list.draw_walk(cx, scope, walk)
     }
 }
