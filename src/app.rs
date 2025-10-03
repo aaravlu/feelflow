@@ -19,16 +19,16 @@ live_design! {
 
             body = {
                 align: { x: 0.5, y: 0.5 }
-                <Label> {
-                    text: "Welcome to FeelFlow!"
-                    draw_text: {
-                        color: #ffffff
-                        text_style: {
-                            line_spacing: 1.5,
-                            font_size: 20.,
-                        }
-                    }
-                }
+                // <Label> {
+                //     text: "Welcome to FeelFlow!"
+                //     draw_text: {
+                //         color: #ffffff
+                //         text_style: {
+                //             line_spacing: 1.5,
+                //             font_size: 20.,
+                //         }
+                //     }
+                // }
                 dock = <Dock> {
                     width: Fill
                     height: Fill

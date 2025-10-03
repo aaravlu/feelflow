@@ -6,13 +6,8 @@ use std::path::PathBuf;
 /// Configuration structure that holds application settings
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct Config {
-    /// Base URL for API requests
     base_url: String,
-
-    /// Model name to use for requests
     model_id: String,
-
-    /// API key for authentication
     api_key: String,
 }
 
