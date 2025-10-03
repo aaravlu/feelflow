@@ -72,8 +72,6 @@ live_design! {
 pub struct App {
     #[live]
     ui: WidgetRef,
-    #[rust]
-    selected_note: Option<usize>,
 }
 app_main!(App);
 
