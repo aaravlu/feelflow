@@ -1,26 +1,21 @@
-use anyhow::anyhow;
 use makepad_widgets::*;
+
+use crate::widgets::{moment::Moment, moments_adder::MomentsAdderAction};
 
 live_design! {
     use link::theme::*;
     use link::shaders::*;
     use link::widgets::*;
 
+    use crate::widgets::moment::MomentUI;
+
     pub MomentsList = {{MomentsList}} {
         flow: Down
         spacing: 0.
         keep_invisible: false
 
-        moment = <View> {
-            tag = <Label> {
-                // It is a holder
-                text = ""
-            }
+        moment = <MomentUI> {
 
-            content = <Label> {
-                // It is a holder
-                text = ""
-            }
         }
     }
 }
@@ -44,7 +39,7 @@ impl Widget for MomentsList {
 
         while let Some(item_id) = self.list.next_visible_item(cx) {
             let item = if let Some(moment) = moments_iter.next() {
-                let Moment { tag, content } = moment;
+                let (content, tag) = (moment.content(), moment.tag());
                 let moment = self.list.item(cx, item_id, live_id!(moment)).as_view();
                 moment.label(id!(tag)).set_text(cx, tag);
                 moment.label(id!(content)).set_text(cx, content);
@@ -59,6 +54,14 @@ impl Widget for MomentsList {
     }
 }
 
+impl MatchEvent for MomentsList {
+    fn handle_action(&mut self, _cx: &mut Cx, action: &Action) {
+        if let Some(MomentsAdderAction::Add(content)) = action.downcast_ref() {
+            self.add_single_moment(Moment::from_content(content.clone()));
+        }
+    }
+}
+
 impl MomentsList {
     pub fn add_moments_list(&mut self, moments: Vec<Moment>) {
         self.moments.extend(moments);
@@ -66,42 +69,5 @@ impl MomentsList {
 
     pub fn add_single_moment(&mut self, moment: Moment) {
         self.moments.push(moment);
-    }
-}
-
-#[derive(Clone, Debug)]
-pub struct Moment {
-    tag: String,
-    content: String,
-}
-
-impl Moment {
-    pub fn new(tag: String, content: String) -> Self {
-        Moment { tag, content }
-    }
-    pub fn from_csv(data: &str) -> anyhow::Result<Vec<Self>> {
-        let mut reader = csv::Reader::from_reader(data.as_bytes());
-        let mut moments = Vec::new();
-
-        for result in reader.records() {
-            let record = result?;
-            let tag = record
-                .get(0)
-                .ok_or(anyhow!("Can not parse tag"))?
-                .to_string();
-            let content = record
-                .get(1)
-                .ok_or(anyhow!("Can not parse content"))?
-                .to_string();
-            moments.push(Moment::new(tag, content));
-        }
-
-        Ok(moments)
-    }
-    pub fn tag(&self) -> &str {
-        &self.tag
-    }
-    pub fn content(&self) -> &str {
-        &self.content
     }
 }

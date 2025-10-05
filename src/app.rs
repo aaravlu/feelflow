@@ -1,5 +1,7 @@
 use makepad_widgets::*;
 
+use crate::config::Config;
+
 live_design! {
     use link::theme::*;
     use link::shaders::*;
@@ -19,16 +21,6 @@ live_design! {
 
             body = {
                 align: { x: 0.5, y: 0.5 }
-                // <Label> {
-                //     text: "Welcome to FeelFlow!"
-                //     draw_text: {
-                //         color: #ffffff
-                //         text_style: {
-                //             line_spacing: 1.5,
-                //             font_size: 20.,
-                //         }
-                //     }
-                // }
                 dock = <Dock> {
                     width: Fill
                     height: Fill
@@ -72,17 +64,34 @@ live_design! {
 pub struct App {
     #[live]
     ui: WidgetRef,
+    #[rust]
+    config: Option<Config>,
 }
 app_main!(App);
 
 impl LiveRegister for App {
     fn live_register(cx: &mut Cx) {
         makepad_widgets::live_design(cx);
+        crate::widgets::live_design(cx);
+    }
+}
+
+impl MatchEvent for App {
+    fn handle_startup(&mut self, _cx: &mut Cx) {
+        self.load_config();
     }
 }
 
 impl AppMain for App {
     fn handle_event(&mut self, cx: &mut Cx, event: &Event) {
+        self.match_event(cx, event);
         self.ui.handle_event(cx, event, &mut Scope::empty());
+    }
+}
+
+impl App {
+    fn load_config(&mut self) {
+        let config = Config::load().unwrap();
+        self.config = Some(config)
     }
 }
